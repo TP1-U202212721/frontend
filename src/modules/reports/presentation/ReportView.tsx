@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Send, UploadCloud, CheckCircle2 } from "lucide-react";
+import { Send, UploadCloud, CheckCircle2 } from "lucide-react";
 import { useReports } from "./useReports";
 
 export function ReportView() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { submitReport, loading } = useReports();
-  
+
   const [sellerName, setSellerName] = useState("");
   const [platform, setPlatform] = useState("");
   const [description, setDescription] = useState("");
@@ -24,7 +24,6 @@ export function ReportView() {
 
       <div className="max-w-3xl w-full animate-fade-in">
         <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-700 mb-6 text-center flex items-center justify-center gap-4">
-          <AlertTriangle size={40} className="text-rose-500" />
           Reportar Vendedor Sospechoso
         </h1>
         <p className="text-xl text-slate-500 font-medium text-center mb-10">
@@ -34,44 +33,44 @@ export function ReportView() {
         {!isSubmitted ? (
           <div className="bg-white rounded-[32px] p-8 sm:p-12 shadow-md border border-slate-200">
             <form onSubmit={handleSubmit} className="space-y-8">
-              
-              <div className="space-y-3">
-                <label className="text-xl font-bold text-slate-800 ml-2">Nombre del Vendedor / Tienda</label>
-                <input 
-                  type="text" 
+
+              <div className="flex flex-col gap-3">
+                <label className="text-xl font-extrabold text-slate-800 ml-2">Nombre del Vendedor / Tienda</label>
+                <input
+                  type="text"
                   required
                   value={sellerName}
                   onChange={(e) => setSellerName(e.target.value)}
-                  placeholder="Ej: Tienda Virtual XYZ, Vendedor123" 
+                  placeholder="Por ejem: Vendedor 1"
                   className="w-full p-4 text-lg rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none font-medium placeholder-slate-400"
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xl font-bold text-slate-800 ml-2">Plataforma o Sitio Web</label>
-                <input 
-                  type="text" 
+              <div className="flex flex-col gap-3">
+                <label className="text-xl font-extrabold text-slate-800 ml-2">Enlace de la publicación</label>
+                <input
+                  type="text"
                   value={platform}
                   onChange={(e) => setPlatform(e.target.value)}
-                  placeholder="Ej: Facebook Marketplace, Instagram, URL de la tienda" 
+                  placeholder="Por ejem: http://mercadolibre.com.pe/iphone17"
                   className="w-full p-4 text-lg rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none font-medium placeholder-slate-400"
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xl font-bold text-slate-800 ml-2">Descripción del Incidente</label>
-                <textarea 
+              <div className="flex flex-col gap-3">
+                <label className="text-xl font-extrabold text-slate-800 ml-2">Descripción del motivo</label>
+                <textarea
                   required
                   rows={5}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe por qué consideras que este vendedor es sospechoso o si fuiste víctima de una estafa..." 
+                  placeholder="Describe por qué consideras que este vendedor es sospechoso o si fuiste víctima de una estafa..."
                   className="w-full p-4 text-lg rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none font-medium placeholder-slate-400 resize-none"
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xl font-bold text-slate-800 ml-2 block">Evidencia (Opcional)</label>
+              <div className="flex flex-col gap-3">
+                <label className="text-xl font-extrabold text-slate-800 ml-2 block">Evidencia del hecho</label>
                 <div className="w-full border-2 border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 hover:border-blue-400 transition-colors cursor-pointer group">
                   <UploadCloud size={48} className="mb-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
                   <p className="text-lg font-bold text-center mb-2">Haz clic o arrastra archivos aquí</p>
@@ -80,12 +79,12 @@ export function ReportView() {
               </div>
 
               <div className="pt-6 border-t border-slate-100">
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xl font-black shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="w-full py-5 bg-black hover:cursor-pointer text-white rounded-2xl text-xl font-black shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 disabled:opacity-50"
                 >
-                  {loading ? "Enviando..." : <><Send size={24} /> Enviar Reporte</>}
+                  {loading ? "Enviando..." : <>Enviar Reporte</>}
                 </button>
               </div>
             </form>
@@ -99,7 +98,7 @@ export function ReportView() {
             <p className="text-xl font-medium text-emerald-700 mb-8 leading-relaxed max-w-lg mx-auto">
               Gracias por tu colaboración. Tu reporte nos ayuda a entrenar nuestro modelo de IA y hacer las compras digitales más seguras en el Perú.
             </p>
-            <button 
+            <button
               onClick={() => {
                 setIsSubmitted(false);
                 setSellerName("");

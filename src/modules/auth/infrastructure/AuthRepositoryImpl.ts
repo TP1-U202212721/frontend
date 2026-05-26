@@ -1,5 +1,4 @@
 import { IAuthRepository } from "../domain/IAuthRepository";
-import { Login } from "../domain/Login";
 import { User } from "../domain/User";
 
 export class AuthRepositoryImpl implements IAuthRepository {

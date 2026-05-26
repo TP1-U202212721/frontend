@@ -26,7 +26,6 @@ export function HomeView() {
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-6 relative w-full h-full min-h-[calc(100vh-100px)]">
-      {/* Background shape */}
       <div className="absolute top-0 left-0 w-full h-64 bg-blue-700/5 rounded-b-[50px] -z-10" />
 
       <div className="max-w-4xl w-full text-center mb-12 animate-fade-in">
@@ -120,8 +119,6 @@ export function HomeView() {
           </div>
         </div>
       )}
-
-      {/* Details Modal */}
       {showDetails && result && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-[24px] shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all animate-scale-in flex flex-col items-center">

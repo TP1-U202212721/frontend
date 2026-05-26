@@ -4,11 +4,12 @@ import { useState } from "react";
 import { SellerRiskRepositoryImpl } from "../infrastructure/SellerRiskRepositoryImpl";
 import { ISellerRiskRepository } from "../domain/ISellerRiskRepository";
 import { SellerRisk } from "../domain/SellerRisk";
+import { useGlobal } from "@/modules/shared/presentation/useGlobal";
 
 const riskRepository: ISellerRiskRepository = new SellerRiskRepositoryImpl();
 
 export function useRiskAnalysis() {
-  const [loading, setLoading] = useState(false);
+  const { loading, setLoading } = useGlobal()
   const [result, setResult] = useState<SellerRisk | null>(null);
 
   const evaluateRisk = async (sellerName: string) => {

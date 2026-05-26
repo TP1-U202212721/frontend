@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { ProfileRepositoryImpl } from "../infrastructure/ProfileRepositoryImpl";
 import { IProfileRepository } from "../domain/IProfileRepository";
 import { UserProfile } from "../domain/UserProfile";
+import { useGlobal } from "@/modules/shared/presentation/useGlobal";
 
 const profileRepository: IProfileRepository = new ProfileRepositoryImpl();
 
 export function useProfile(userId: string) {
-  const [loading, setLoading] = useState(false);
+  const { loading, setLoading } = useGlobal()
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {

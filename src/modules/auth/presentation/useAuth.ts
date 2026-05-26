@@ -4,14 +4,12 @@ import { useState } from "react";
 import { AuthRepositoryImpl } from "../infrastructure/AuthRepositoryImpl";
 import { IAuthRepository } from "../domain/IAuthRepository";
 import { User } from "../domain/User";
-
-// Idealmente, esto se inyectaría usando un Contexto, pero para este módulo lo instanciamos directo o como singleton.
+import { useGlobal } from "@/modules/shared/presentation/useGlobal";
 const authRepository: IAuthRepository = new AuthRepositoryImpl();
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, setLoading, error, setError } = useGlobal()
 
   const login = async (email: string, password: string) => {
     setLoading(true);

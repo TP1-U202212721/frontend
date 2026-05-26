@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { ReportRepositoryImpl } from "../infrastructure/ReportRepositoryImpl";
 import { IReportRepository } from "../domain/IReportRepository";
 import { HistoryItem } from "../domain/Report";
+import { useGlobal } from "@/modules/shared/presentation/useGlobal";
 
 const reportRepository: IReportRepository = new ReportRepositoryImpl();
 
 export function useReports() {
-  const [loading, setLoading] = useState(false);
+  const { loading, setLoading } = useGlobal()
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   const loadHistory = async () => {

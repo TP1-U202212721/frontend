@@ -1,5 +1,5 @@
 export interface SellerRisk {
-  sellerName: string;
-  riskLevel: "Bajo" | "Moderado" | "Alto";
+  seller: string;
+  riskLevel: string;
   reasons: string[];
 }

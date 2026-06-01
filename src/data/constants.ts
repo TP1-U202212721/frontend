@@ -47,3 +47,9 @@ export const terms = [
         description: "Nos reservamos el derecho de modificar o reemplazar estos Términos en cualquier momento. Se le notificará de cualquier cambio significativo a través de la aplicación o por correo electrónico. El uso continuado del servicio después de cualquier cambio constituye su aceptación de los nuevos Términos."
     }
 ]
+
+export const riskLevels : Record<number, string> = {
+    3: "Bajo",
+    2: "Moderado",
+    1: "Alto"
+}

@@ -8,8 +8,19 @@ export interface Report {
 }
 
 export interface HistoryItem {
-  id: string;
-  name: string;
-  risk: "Bajo" | "Moderado" | "Alto";
-  date: string;
+  id: number;
+  sellerName: string;
+  riskTypeId: number;
+  profileId: number;
+  createdAT: string;
+}
+
+export interface ReasonResponseWrapper{
+  items: Reason[];
+}
+
+export interface Reason {
+  id: number;
+  title: string;
+  inquiryResultId: number;
 }

@@ -17,7 +17,7 @@ export const faqs = [
     },
     {
         question: "¿Mis consultas son privadas?",
-        answer: "Sí, tus consultas se almacenan de forma segura en tu historial personal para tu propia referencia. No compartimos tus datos de consulta con terceros ni con los vendedores."
+        answer: "Sí, tus consultas se almacenan de forma segura en tu historial personal para tu propia referencia. No compartimos tus datos de con terceros ni con los vendedores."
     }
 ];
 
@@ -47,6 +47,20 @@ export const terms = [
         description: "Nos reservamos el derecho de modificar o reemplazar estos Términos en cualquier momento. Se le notificará de cualquier cambio significativo a través de la aplicación o por correo electrónico. El uso continuado del servicio después de cualquier cambio constituye su aceptación de los nuevos Términos."
     }
 ]
+
+export const PLATFORM_RULES: Record<string, { platform: string; regex: RegExp }[]> = {
+  "mercadolibre": [
+    { platform: "mercadolibre", regex: /[?&]wid=(MPE\d+)/i },
+    { platform: "mercadolibre", regex: /\/p\/(MPE\d+)/i },
+  ],
+  "facebook": [
+    { platform: "facebook", regex: /\/marketplace\/item\/(\d+)/ },
+  ],
+  "olx": [
+    { platform: "olx", regex: /(\d+)\.html/ },
+    { platform: "olx", regex: /iid-(\d+)/ },
+  ],
+};
 
 export const riskLevels : Record<number, string> = {
     3: "Bajo",

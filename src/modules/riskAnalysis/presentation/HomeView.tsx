@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { Search, ShieldAlert, ShieldCheck, Info } from "lucide-react";
 import { useRiskAnalysis } from "./useRiskAnalysis";
-import { useGlobal } from "@/modules/shared/presentation/useGlobal";
+import { useReports } from "@/modules/reports/presentation/useReports";
+import { riskLevels } from "@/data/constants";
+import { Modal } from "@/modules/shared/presentation/Modal";
+import {  useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { extractPostId } from "@/helpers/common";
 
 export function HomeView() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { loading, result, evaluateRisk, clearResult,error } = useRiskAnalysis();
+  const { loading, error, success, isModalOpen, setIsModalOpen, setError, setSuccess } = useGlobalContext();
+  const { result, evaluateRisk, clearResult} = useRiskAnalysis();
+  const {createInquiryResult} = useReports();
   const [showDetails, setShowDetails] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -63,38 +69,18 @@ export function HomeView() {
           </button>
         </div>
       </form>
-      {error !== null && (
-        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-[24px] shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all animate-scale-in flex flex-col items-center">
-            <div className="w-full relative py-6 px-8 border-b border-slate-100 flex justify-end">
-              <button
-                onClick={clearResult}
-                className="w-12 h-12 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 rounded-full flex items-center justify-center transition-colors"
-                aria-label="Cerrar"
-              >
-                <span className="text-2xl font-bold leading-none">&times;</span>
-              </button>
-            </div>
-            <div className="px-8 sm:px-12 pb-12 w-full flex flex-col items-center">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-10 break-all">
-                Ocurrió un error
-              </h2>
-              <p className="text-xl font-bold text-slate-700 mb-8 text-center">
-                {error}
-              </p>
-              <button
-                onClick={() => {
-                  clearResult();
-                  setSearchQuery("");
-                }}
-                className="w-full sm:w-1/2 py-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-              >
-                Regresar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
+      <Modal 
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSuccess(null);
+          setError(null);
+        }} 
+        title={error !== null ? "Ocurrió un error en la aplicación" : success!}
+        description={error !== null ? error : ""}
+        >
+      </Modal>
 
       {result && !showDetails && error === null && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
@@ -117,10 +103,10 @@ export function HomeView() {
 
               <div className="text-center mb-12">
                 <p className="text-2xl font-bold text-slate-800 mb-6">Resultado de la evaluación:</p>
-                <div className={`inline-flex items-center gap-3 px-8 py-4 rounded-2xl border-2 ${getRiskColor(result.riskLevel)}`}>
-                  {result.riskLevel === "Bajo" ? <ShieldCheck size={32} /> : <ShieldAlert size={32} />}
+                <div className={`inline-flex items-center gap-3 px-8 py-4 rounded-2xl border-2 ${getRiskColor(riskLevels[result.riskLevel])}`}>
+                  {riskLevels[result.riskLevel] === "Bajo" ? <ShieldCheck size={32} /> : <ShieldAlert size={32} />}
                   <span className="text-3xl font-black uppercase tracking-wide">
-                    Riesgo: {result.riskLevel}
+                    Riesgo: {riskLevels[result.riskLevel]}
                   </span>
                 </div>
               </div>
@@ -131,10 +117,20 @@ export function HomeView() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-md mx-auto">
                 <button
-                  onClick={() => {
-                    alert("Consulta guardada en el historial!");
-                    clearResult();
-                    setSearchQuery("");
+                  onClick={async () => {
+                    try {
+                      await createInquiryResult({
+                        sellerName: result.seller,
+                        riskTypeId: result.riskLevel,
+                        profileId: 1,
+                        postId: extractPostId(searchQuery),
+                        reasons: result.reasons,
+                      });
+                      clearResult();
+                      setSearchQuery("");
+                    } catch {
+                      // Error already handled globally.
+                    }
                   }}
                   className="w-full sm:w-1/2 py-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
@@ -170,7 +166,7 @@ export function HomeView() {
 
             <div className="px-8 sm:px-12 pb-12 w-full">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-10">
-                Detalles de la estimación
+                Detalles de la evaluación
               </h2>
 
               <div className="bg-slate-50 rounded-2xl p-8 mb-12 border border-slate-200">
@@ -186,19 +182,8 @@ export function HomeView() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-md mx-auto">
                 <button
-                  onClick={() => {
-                    alert("Consulta guardada en el historial!");
-                    setShowDetails(false);
-                    clearResult();
-                    setSearchQuery("");
-                  }}
-                  className="w-full sm:w-1/2 py-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  Guardar
-                </button>
-                <button
                   onClick={() => setShowDetails(false)}
-                  className="w-full sm:w-1/2 py-4 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full sm:w-1/2 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                   Regresar
                 </button>

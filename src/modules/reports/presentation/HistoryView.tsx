@@ -3,20 +3,53 @@
 import { useEffect, useState } from "react";
 import { Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { useReports } from "./useReports";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { Modal } from "@/modules/shared/presentation/Modal";
+import { useRiskAnalysis } from "@/modules/riskAnalysis/presentation/useRiskAnalysis";
+import { Reason } from "../domain/Report";
 
 export function HistoryView() {
-  const { history, loadHistory, deleteHistoryItem, loading } = useReports();
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const {
+    history,
+    loadHistory,
+    deleteHistoryItem,
+    offset,
+    limit,
+    date,
+    riskTypeId,
+    sellerName,
+    setDate,
+    setRiskTypeId,
+    setSellerName,
+  } = useReports();
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const {reasons, getReasonsByInquiryResultId} = useReports();
+  const {clearResult} = useRiskAnalysis();
+  const {loading,error,success, isModalOpen, setSuccess, setError, setIsModalOpen} = useGlobalContext();
 
   useEffect(() => {
     loadHistory();
   }, []);
 
-  const handleDelete = async () => {
-    if (itemToDelete) {
-      await deleteHistoryItem(itemToDelete);
-      setItemToDelete(null);
-    }
+  const handleDelete = async (id: number) => {
+    await deleteHistoryItem(id);
+    setItemToDelete(null);
+  };
+
+  const handleSearch = () => {
+    loadHistory({ offset: 0 });
+  };
+
+  const handlePrevPage = () => {
+    if (offset === 0) return;
+    const nextOffset = Math.max(offset - limit, 0);
+    loadHistory({ offset: nextOffset });
+  };
+
+  const handleNextPage = () => {
+    const nextOffset = offset + limit;
+    loadHistory({ offset: nextOffset });
   };
 
   const getRiskColor = (risk: string) => {
@@ -26,6 +59,12 @@ export function HistoryView() {
       case "Alto": return "text-rose-600 bg-rose-50 border-rose-200";
       default: return "text-slate-600 bg-slate-50 border-slate-200";
     }
+  };
+
+  const risks: { [key: number]: string } = {
+    1: "Alto",
+    2: "Moderado",
+    3: "Bajo"
   };
 
   return (
@@ -40,26 +79,92 @@ export function HistoryView() {
           <div className="flex flex-col sm:flex-row items-end gap-4 sm:gap-6">
             <div className="flex-1 w-full">
               <label className="block text-sm font-bold text-slate-700 mb-2">Nivel de Riesgo</label>
-              <select className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700">
+              <select
+                value={riskTypeId ?? ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setRiskTypeId(value === "" ? undefined : Number(value));
+                }}
+                className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700"
+              >
                 <option value="">Todos</option>
-                <option value="Bajo">Bajo</option>
-                <option value="Moderado">Moderado</option>
-                <option value="Alto">Alto</option>
+                <option value="3">Bajo</option>
+                <option value="2">Moderado</option>
+                <option value="1">Alto</option>
               </select>
             </div>
             <div className="flex-1 w-full">
               <label className="block text-sm font-bold text-slate-700 mb-2">Nombre</label>
-              <input type="text" className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700 placeholder-slate-400" placeholder="Buscar vendedor..." />
+              <input
+                type="text"
+                value={sellerName ?? ""}
+                onChange={(event) => setSellerName(event.target.value || undefined)}
+                className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700 placeholder-slate-400"
+                placeholder="Nombre del vendedor"
+              />
             </div>
             <div className="flex-1 w-full">
               <label className="block text-sm font-bold text-slate-700 mb-2">Fecha registro</label>
-              <input type="date" className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700" />
+              <input
+                type="date"
+                value={date ?? ""}
+                onChange={(event) => setDate(event.target.value || undefined)}
+                className="w-full h-[50px] rounded-xl border border-slate-300 px-4 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium text-slate-700"
+              />
             </div>
-            <button className="w-full sm:w-auto h-[50px] px-8 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-bold transition-colors shadow-md flex items-center justify-center gap-2">
+            <button
+              onClick={handleSearch}
+              className="w-full sm:w-auto h-[50px] px-8 bg-blue-700 hover:bg-blue-800 text-white rounded-xl font-bold transition-colors shadow-md flex items-center justify-center gap-2"
+            >
               Buscar
             </button>
           </div>
         </div>
+         {showDetails && reasons && error === null && (
+        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[24px] shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all animate-scale-in flex flex-col items-center">
+
+            <div className="w-full relative py-6 px-8 border-b border-slate-100 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowDetails(false);
+                  clearResult();
+                }}
+                className="w-12 h-12 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 rounded-full flex items-center justify-center transition-colors"
+                aria-label="Cerrar"
+              >
+                <span className="text-2xl font-bold leading-none">&times;</span>
+              </button>
+            </div>
+
+            <div className="px-8 sm:px-12 pb-12 w-full">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-10">
+                Detalles de la evaluación
+              </h2>
+
+              <div className="bg-slate-50 rounded-2xl p-8 mb-12 border border-slate-200">
+                <ul className="space-y-6 text-xl font-bold text-slate-800 list-none pl-2">
+                  {reasons.items.map((reason:Reason, idx:any) => (
+                    <li key={idx} className="flex items-start gap-4">
+                      <div className="w-3 h-3 rounded-full bg-blue-500 mt-2 shrink-0" />
+                      <span>{reason.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-md mx-auto">
+                <button
+                  onClick={() => setShowDetails(false)}
+                  className="w-full sm:w-1/2 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                  Regresar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
         {loading && <p className="text-center font-bold text-xl">Cargando historial...</p>}
         {!loading && (
@@ -67,14 +172,20 @@ export function HistoryView() {
             {history.map((query) => (
               <div key={query.id} className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 hover:shadow-md transition-shadow">
                 <div className="flex-1 w-full flex flex-col items-center sm:items-start gap-4">
-                  <h3 className="text-2xl font-black text-slate-800">{query.name}</h3>
-                  <div className={`inline-flex items-center px-4 py-2 rounded-xl border font-bold text-lg uppercase tracking-wide ${getRiskColor(query.risk)}`}>
-                    Riesgo: {query.risk}
+                  <h3 className="text-2xl font-black text-slate-800">{query.sellerName}</h3>
+                  <div className={`inline-flex items-center px-4 py-2 rounded-xl border font-bold text-lg uppercase tracking-wide ${getRiskColor(risks[query.riskTypeId])}`}>
+                    Riesgo: {risks[query.riskTypeId]}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
-                  <button className="flex-1 sm:flex-none py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                  <button 
+                  onClick={() => {
+                    setShowDetails(true);
+                    getReasonsByInquiryResultId(query.id);
+                  }}
+                  className="flex-1 sm:flex-none py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
+                  >
                     <Info size={20} />
                     <span className="hidden sm:inline">Ver detalle</span>
                   </button>
@@ -95,12 +206,19 @@ export function HistoryView() {
         )}
         {history.length > 0 && (
           <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-            <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50 disabled:opacity-50">
-              <ChevronLeft size={20} />
+            <button
+              onClick={handlePrevPage}
+              disabled={offset === 0}
+              className="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+            >
+              <ChevronLeft size={10} />
             </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-700 text-white font-bold shadow-md">1</button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50">
-              <ChevronRight size={20} />
+            <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-700 text-white font-bold shadow-md">{offset / limit + 1}</button>
+            <button
+              onClick={handleNextPage}
+              className="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-50"
+            >
+              <ChevronRight size={10} />
             </button>
           </div>
         )}
@@ -110,6 +228,17 @@ export function HistoryView() {
         </p>
 
       </div>
+     <Modal 
+         isOpen={isModalOpen}
+         onClose={() => {
+              setIsModalOpen(false)
+              setSuccess(null);
+              setError(null);
+          }} 
+          title={error !== null ? "Ocurrió un error en la aplicación" : success!}
+          description={error !== null ? error : ""}
+        >
+      </Modal>
       {itemToDelete && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-[24px] shadow-2xl max-w-lg w-full p-10 transform transition-all animate-scale-in text-center">
@@ -124,7 +253,7 @@ export function HistoryView() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={handleDelete}
+                onClick={() => handleDelete(itemToDelete)}
                 className="w-full sm:w-1/2 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-lg shadow-lg transition-colors active:scale-95"
               >
                 Confirmar

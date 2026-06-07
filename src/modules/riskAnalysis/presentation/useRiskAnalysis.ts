@@ -4,13 +4,12 @@ import { useState } from "react";
 import { SellerRiskRepositoryImpl } from "../infrastructure/SellerRiskRepositoryImpl";
 import { ISellerRiskRepository } from "../domain/ISellerRiskRepository";
 import { SellerRisk } from "../domain/SellerRisk";
-import { useGlobal } from "@/modules/shared/presentation/useGlobal";
+import { useGlobal, useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 
 const riskRepository: ISellerRiskRepository = new SellerRiskRepositoryImpl();
 
 export function useRiskAnalysis() {
-  const { loading, setLoading } = useGlobal()
-  const [error, setError] = useState<string | null>(null);
+  const { setLoading, setError, setIsModalOpen } = useGlobalContext();
   const [result, setResult] = useState<SellerRisk | null>(null);
 
   const evaluateRisk = async (url: string) => {
@@ -21,9 +20,9 @@ export function useRiskAnalysis() {
       const riskResult = await riskRepository.evaluateSellerRisk(url);
       setResult(riskResult);
       return riskResult;
-    } catch (err) {
-      console.error("Error evaluating seller risk:", err);
-       setError("Error al evaluar el riesgo del vendedor. Por favor, inténtalo de nuevo más tarde.");
+    } catch (err:any) {
+       setError("Ocurrió un error al procesar la consulta");
+       setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -34,5 +33,7 @@ export function useRiskAnalysis() {
     setError(null);
   };
 
-  return { loading, result, evaluateRisk, clearResult,error,setError };
+  return {  result, evaluateRisk, clearResult};
 }
+
+

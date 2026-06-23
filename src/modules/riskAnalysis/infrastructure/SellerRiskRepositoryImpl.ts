@@ -1,5 +1,5 @@
 
-import api from "@/modules/shared/infrastructure/api";
+import { api } from "@/modules/shared/infrastructure/api";
 import { ISellerRiskRepository } from "../domain/ISellerRiskRepository";
 import { SellerRisk } from "../domain/SellerRisk";
 

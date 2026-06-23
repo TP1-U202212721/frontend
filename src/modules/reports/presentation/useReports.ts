@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { ReportRepositoryImpl } from "../infrastructure/ReportRepositoryImpl";
 import { IReportRepository } from "../domain/IReportRepository";
-import { HistoryItem, Reason, ReasonResponseWrapper } from "../domain/Report";
+import { HistoryItem, ReasonResponseWrapper, Report } from "../domain/Report";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { formatDate } from "@/helpers/common";
 
@@ -69,10 +69,10 @@ export function useReports() {
     }
   }
 
-  const submitReport = async (sellerName: string, platform: string, description: string) => {
+  const submitReport = async (report:Report) => {
     setLoading(true);
     try {
-      const result = await reportRepository.submitReport({ sellerName, platform, description });
+      const result = await reportRepository.submitReport(report);
       return result;
     } catch (err:any) {
       setError(err.message);

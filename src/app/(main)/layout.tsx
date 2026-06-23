@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, Home, Clock, User, ShieldCheck, AlertTriangle, ShieldQuestion, FileText } from "lucide-react";
+import { Menu, X, Home, Clock, User, ShieldCheck, AlertTriangle, ShieldQuestion, FileText, ChartNoAxesColumn } from "lucide-react";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -62,7 +62,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <Home size={24} />
@@ -71,16 +71,25 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/history"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/history") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/history") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <Clock size={24} />
             <span className="text-lg">Historial de Consultas</span>
           </Link>
           <Link
+            href="/ranking"
+            onClick={closeSidebar}
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/ranking") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+          >
+            <ChartNoAxesColumn size={24} />
+            <span className="text-lg">Ranking de Vendedores</span>
+          </Link>
+          <Link
             href="/report"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/report") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/report") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <AlertTriangle size={24} />
@@ -89,7 +98,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/profile"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/profile") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/profile") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <User size={24} />
@@ -98,7 +107,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/faq"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/faq") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/faq") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <ShieldQuestion size={24} />
@@ -107,7 +116,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Link
             href="/terms"
             onClick={closeSidebar}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors ${isActive("/terms") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-bold ${isActive("/terms") ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
           >
             <FileText size={24} />

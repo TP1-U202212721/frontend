@@ -1,21 +1,30 @@
 
-import api from "@/modules/shared/infrastructure/api";
+import  { api, apiWithFormData } from "@/modules/shared/infrastructure/api";
 import { IReportRepository } from "../domain/IReportRepository";
 import { Report, HistoryItem } from "../domain/Report";
 import { AxiosError } from "axios";
 
 export class ReportRepositoryImpl implements IReportRepository {
 
-  async submitReport(reportData: Omit<Report, "id" | "createdAt">): Promise<Report> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          id: Date.now().toString(),
-          createdAt: new Date(),
-          ...reportData,
-        });
-      }, 1000);
-    });
+  async submitReport(report: Report): Promise<any> {
+    const formData = new FormData();
+    formData.append('Email', report.email);
+    formData.append('Username', report.username);
+    formData.append('SellerName', report.sellerName);
+    formData.append('PublicationUrl', report.publicationUrl);
+    formData.append('Reason', report.reason);
+    
+    if (report.attachment) {
+      formData.append('Attachment', report.attachment, report.attachment.name);
+    }
+
+    try {
+      const response = await  apiWithFormData.post('/Report', formData);
+      return response.data;
+    } catch (error) {
+      console.error('Error al enviar reporte:', error);
+      throw error;
+    }
   }
 
   async getReasonsByInquiryResultId(inquiryResultId: number): Promise<any> {

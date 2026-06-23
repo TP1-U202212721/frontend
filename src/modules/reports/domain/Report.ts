@@ -1,10 +1,10 @@
 export interface Report {
-  id: string;
+  email: string;
+  username: string;
   sellerName: string;
-  platform: string;
-  description: string;
-  evidence?: string;
-  createdAt: Date;
+  publicationUrl: string;
+  reason: string;
+  attachment?: File;
 }
 
 export interface HistoryItem {

@@ -17,14 +17,11 @@ export class ReportRepositoryImpl implements IReportRepository {
     if (report.attachment) {
       formData.append('Attachment', report.attachment, report.attachment.name);
     }
-
-    try {
-      const response = await  apiWithFormData.post('/Report', formData);
-      return response.data;
-    } catch (error) {
-      console.error('Error al enviar reporte:', error);
-      throw error;
+    const response = await  apiWithFormData.post('/Report', formData);
+    if (!response.data.isSuccess) {
+      throw new Error(response.data.message);
     }
+      return response.data;
   }
 
   async getReasonsByInquiryResultId(inquiryResultId: number): Promise<any> {
@@ -32,8 +29,8 @@ export class ReportRepositoryImpl implements IReportRepository {
     return response.data;
   }
 
-  async getHistory(offset: number, limit: number,date?: string,riskTypeId?: number,sellerName?: string): Promise<HistoryItem[]> {
-    const response = await api.get("/InquiryResult", { params: { offset, limit, date, riskTypeId, sellerName } });
+  async getHistory(offset: number, limit: number, profileId: number, date?: string, riskTypeId?: number, sellerName?: string): Promise<HistoryItem[]> {
+    const response = await api.get("/InquiryResult", { params: { offset, limit, profileId, date, riskTypeId, sellerName } });
     return response.data.items as HistoryItem[];
   }
 
@@ -42,14 +39,10 @@ export class ReportRepositoryImpl implements IReportRepository {
     return response.status === 200;
   }
   async createInquiryResult(payload: any): Promise<any> {
-    try{
       const response = await api.post('/InquiryResult', payload);
-      return response.data;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-         throw new Error(error.response.data.message);
+      if (!response.data.isSuccess) {
+         throw new Error(response.data.message);
       }
-      throw error; 
-    }
+      return response.data;
   }
 }

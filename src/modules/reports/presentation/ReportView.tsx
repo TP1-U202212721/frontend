@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadCloud, CheckCircle2 } from "lucide-react";
+import { UploadCloud } from "lucide-react";
 import { useReports } from "./useReports";
-import { useGlobal } from "@/modules/shared/presentation/useGlobal";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { Modal } from "@/modules/shared/presentation/Modal";
 
 export function ReportView() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const {loading} = useGlobal();
+  const { loading, error, success, isModalOpen, setIsModalOpen, setError, setSuccess } = useGlobalContext();
   const { submitReport} = useReports();
 
   const [sellerName, setSellerName] = useState("");
@@ -32,7 +32,10 @@ export function ReportView() {
       reason: description,
       attachment: attachment || undefined,
     });
-    setIsSubmitted(true);
+    setSellerName("");
+    setPublicationUrl("");
+    setDescription("");
+    setAttachment(null);
   };
 
   return (
@@ -46,8 +49,16 @@ export function ReportView() {
         <p className="text-xl text-slate-500 font-medium text-center mb-10">
           Ayúdanos a mejorar nuestros modelos y proteger a la comunidad reportando posibles estafas.
         </p>
-
-        {!isSubmitted ? (
+        <Modal 
+           isOpen={isModalOpen}
+           onClose={() => {
+              setIsModalOpen(false)
+              setSuccess(null);
+              setError(null);
+            }} 
+            title={error !== null ? "Ocurrió un error al enviar el reporte" : success!}
+            description={error !== null ? "Debe llenar todos los campos obligatorios" : "Gracias por tu colaboración. Tu reporte nos ayuda a entrenar nuestro modelo de IA y hacer las compras digitales más seguras en el Perú."}
+          />
           <div className="bg-white rounded-[32px] p-8 sm:p-12 shadow-md border border-slate-200">
             <form onSubmit={handleSubmit} className="space-y-8">
 
@@ -91,6 +102,7 @@ export function ReportView() {
                       <input
                         ref={fileInputRef}
                         type="file"
+                        required
                         accept="image/*,application/pdf"
                         onChange={handleFileChange}
                         style={{ display: 'none' }}
@@ -119,29 +131,6 @@ export function ReportView() {
               </div>
             </form>
           </div>
-        ) : (
-          <div className="bg-emerald-50 rounded-[32px] p-8 sm:p-12 shadow-md border-2 border-emerald-200 text-center animate-scale-in">
-            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 size={56} className="text-emerald-600" />
-            </div>
-            <h2 className="text-3xl font-extrabold text-emerald-800 mb-4">¡Reporte Enviado!</h2>
-            <p className="text-xl font-medium text-emerald-700 mb-8 leading-relaxed max-w-lg mx-auto">
-              Gracias por tu colaboración. Tu reporte nos ayuda a entrenar nuestro modelo de IA y hacer las compras digitales más seguras en el Perú.
-            </p>
-            <button
-              onClick={() => {
-                setIsSubmitted(false);
-                setSellerName("");
-                setPublicationUrl("");
-                setDescription("");
-                setAttachment(null);
-              }}
-              className="py-4 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-lg font-bold shadow-md transition-colors"
-            >
-              Enviar otro reporte
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

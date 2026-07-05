@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SellerRiskRepositoryImpl } from "../infrastructure/SellerRiskRepositoryImpl";
 import { ISellerRiskRepository } from "../domain/ISellerRiskRepository";
 import { SellerRisk } from "../domain/SellerRisk";
-import { useGlobal, useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import {  useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 
 const riskRepository: ISellerRiskRepository = new SellerRiskRepositoryImpl();
 
@@ -21,7 +21,7 @@ export function useRiskAnalysis() {
       setResult(riskResult);
       return riskResult;
     } catch (err:any) {
-       setError("Ocurrió un error al procesar la consulta");
+       setError(err.message);
        setIsModalOpen(true);
     } finally {
       setLoading(false);

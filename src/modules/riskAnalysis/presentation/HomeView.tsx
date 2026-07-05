@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, ShieldAlert, ShieldCheck, Info } from "lucide-react";
 import { useRiskAnalysis } from "./useRiskAnalysis";
 import { useReports } from "@/modules/reports/presentation/useReports";
@@ -8,6 +8,9 @@ import { riskLevels } from "@/data/constants";
 import { Modal } from "@/modules/shared/presentation/Modal";
 import {  useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { extractPostId } from "@/helpers/common";
+import { useProfile } from "@/modules/profile/presentation/useProfile";
+import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 export function HomeView() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +33,19 @@ export function HomeView() {
       default: return "text-slate-600 bg-slate-50 border-slate-200";
     }
   };
+
+   const email = useMemo(() => {
+    const token = Cookies.get("token");
+      if (!token) return null;
+
+      try {
+        const payload: any = jwtDecode(token);
+        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+      } catch {
+        return null;
+      }
+  }, []);
+  const {profile} = useProfile(email!);
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-6 relative w-full h-full min-h-[calc(100vh-100px)]">
@@ -122,7 +138,7 @@ export function HomeView() {
                       await createInquiryResult({
                         sellerName: result.seller,
                         riskTypeId: result.riskLevel,
-                        profileId: 1,
+                        profileId: profile?.id ?? 0,
                         postId: extractPostId(searchQuery),
                         reasons: result.reasons,
                       });

@@ -50,6 +50,9 @@
     "date-fns": "3.6.0",
     "embla-carousel-react": "8.6.0",
     "input-otp": "1.4.2",
+    "js-cookie": "^3.0.8",
+    "jwt-decode": "^4.0.0",
+    "jwt-decoder": "^0.0.0",
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
     "next": "^16.2.6",
@@ -72,6 +75,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "25.9.1",
     "tailwindcss": "4.1.12",
     "typescript": "6.0.3"

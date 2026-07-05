@@ -1,6 +1,6 @@
-export interface User {
-  id: string;
+export interface LoginRequestDto{
   email: string;
-  name?: string;
-  avatarUrl?: string;
+  password: string;
 }
+
+export interface 

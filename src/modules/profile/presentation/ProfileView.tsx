@@ -1,27 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { User, Edit3, Calendar, UserRound } from "lucide-react";
+import { useMemo, useState } from "react";
+import { User, Mail, UserRound } from "lucide-react";
 import { useProfile } from "./useProfile";
 import { Loader } from "@/modules/shared/presentation/Loader";
+import Cookies from "js-cookie";
+import {jwtDecode} from "jwt-decode";
+
 
 export function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
-  const { profile, updateProfile, loading } = useProfile("1"); // Mock user ID 1
+  const email = useMemo(() => {
+  const token = Cookies.get("token");
+    if (!token) return null;
+
+    try {
+      const payload: any = jwtDecode(token);
+      return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+    } catch {
+      return null;
+    }
+  }, []);
+  const { profile, updateProfile, loading} = useProfile(email); 
   const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
 
   const handleEditClick = () => {
-    if (profile) setEditName(profile.fullName);
+    if (profile) {
+      setEditName(profile.fullName);
+      setEditEmail(profile.email);
+    }
     setIsEditing(true);
   };
 
   const handleSave = async () => {
-    await updateProfile({ fullName: editName });
+    await updateProfile(profile!.id, { fullName: editName, email: editEmail });
     setIsEditing(false);
-    alert("Perfil guardado con éxito");
   };
 
-  if (!profile) return <div className="h-screen w-full"><Loader /></div>
+  if (!profile || loading) return <div className="h-screen w-full"><Loader /></div>
 
   return (
     <div className="flex flex-col items-center flex-1 p-4 sm:p-8 animate-fade-in relative w-full h-full min-h-[calc(100vh-100px)]">
@@ -65,28 +82,40 @@ export function ProfileView() {
 
             <div className="space-y-3">
               <label className="text-xl sm:text-2xl font-bold text-blue-100 flex items-center gap-3 ml-2">
-                <Calendar size={24} />
-                Fecha de creación
+                <Mail size={24} />
+                Correo Electrónico
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  value={profile.createdAt}
-                  disabled
-                  className="w-full p-6 text-xl sm:text-2xl rounded-2xl font-bold bg-white/50 text-slate-700 border-transparent shadow-inner outline-none opacity-80 cursor-not-allowed"
+                  disabled={!isEditing}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  value={isEditing ? editEmail : profile.email}
+                  className={`w-full p-6 text-xl sm:text-2xl rounded-2xl font-bold transition-all shadow-inner outline-none ${isEditing
+                    ? "bg-white text-slate-800 border-4 border-blue-400 focus:ring-4 focus:ring-blue-300 focus:border-blue-500"
+                    : "bg-white/90 text-slate-800 border-transparent disabled:opacity-100"
+                    }`}
                 />
               </div>
             </div>
           </div>
           <div className="mt-16 w-full max-w-md relative z-10">
             {isEditing ? (
-              <button
-                onClick={handleSave}
-                disabled={loading}
-                className="w-full py-5 bg-black text-white rounded-2xl text-2xl font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:cursor-pointer transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3 disabled:opacity-50"
-              >
-                {loading ? "Guardando..." : "Guardar Cambios"}
-              </button>
+              <div className="space-y-4">
+                <button
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="w-full py-5 bg-black text-white rounded-2xl text-2xl font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:cursor-pointer transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
+                >
+                  {loading ? "Guardando..." : "Guardar Cambios"}
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="w-full py-5 bg-black text-white rounded-2xl text-2xl font-black shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:cursor-pointer transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
+                >
+                  Cancelar
+                </button>
+              </div>
             ) : (
               <button
                 onClick={handleEditClick}

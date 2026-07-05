@@ -5,7 +5,6 @@ import { IReportRepository } from "../domain/IReportRepository";
 import { HistoryItem, ReasonResponseWrapper, Report } from "../domain/Report";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { formatDate } from "@/helpers/common";
-
 const reportRepository: IReportRepository = new ReportRepositoryImpl();
 
 export function useReports() {
@@ -21,6 +20,7 @@ export function useReports() {
   const loadHistory = async (options?: {
     offset?: number;
     limit?: number;
+    profileId: number;
     date?: string;
     riskTypeId?: number;
     sellerName?: string;
@@ -30,6 +30,7 @@ export function useReports() {
     const nextDate = options?.date ?? date;
     const nextRiskTypeId = options?.riskTypeId ?? riskTypeId;
     const nextSellerName = options?.sellerName ?? sellerName;
+    const profileId = options?.profileId ?? 0;
 
     if (options?.offset !== undefined) setOffset(options.offset);
     if (options?.limit !== undefined) setLimit(options.limit);
@@ -42,6 +43,7 @@ export function useReports() {
       const data = await reportRepository.getHistory(
         nextOffset,
         nextLimit,
+        profileId,
         formatDate(nextDate),
         nextRiskTypeId,
         nextSellerName
@@ -73,9 +75,11 @@ export function useReports() {
     setLoading(true);
     try {
       const result = await reportRepository.submitReport(report);
+      setSuccess("Reporte enviado exitosamente");
+      setIsModalOpen(true);
       return result;
     } catch (err:any) {
-      setError(err.message);
+      setError(err?.message ?? "Ocurrió un error al enviar el reporte");
       setIsModalOpen(true);
     } finally {
       setLoading(false);

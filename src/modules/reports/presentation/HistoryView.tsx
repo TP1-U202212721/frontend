@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { useReports } from "./useReports";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { Modal } from "@/modules/shared/presentation/Modal";
 import { useRiskAnalysis } from "@/modules/riskAnalysis/presentation/useRiskAnalysis";
 import { Reason } from "../domain/Report";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { useProfile } from "@/modules/profile/presentation/useProfile";
 
 export function HistoryView() {
   const {
@@ -28,9 +31,22 @@ export function HistoryView() {
   const {clearResult} = useRiskAnalysis();
   const {loading,error,success, isModalOpen, setSuccess, setError, setIsModalOpen} = useGlobalContext();
 
-  useEffect(() => {
-    loadHistory();
+  const email = useMemo(() => {
+    const token = Cookies.get("token");
+      if (!token) return null;
+
+      try {
+        const payload: any = jwtDecode(token);
+        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+      } catch {
+        return null;
+      }
   }, []);
+  const {profile} = useProfile(email!);
+
+  useEffect(() => {
+    loadHistory({ profileId: profile?.id ?? 0 });
+  }, [profile?.id]);
 
   const handleDelete = async (id: number) => {
     await deleteHistoryItem(id);
@@ -38,18 +54,18 @@ export function HistoryView() {
   };
 
   const handleSearch = () => {
-    loadHistory({ offset: 0 });
+    loadHistory({ offset: 0, limit, date, riskTypeId, sellerName, profileId: profile?.id ?? 0 });
   };
 
   const handlePrevPage = () => {
     if (offset === 0) return;
     const nextOffset = Math.max(offset - limit, 0);
-    loadHistory({ offset: nextOffset });
+    loadHistory({ offset: nextOffset, profileId: profile?.id ?? 0 });
   };
 
   const handleNextPage = () => {
     const nextOffset = offset + limit;
-    loadHistory({ offset: nextOffset });
+    loadHistory({ offset: nextOffset, profileId: profile?.id ?? 0 });
   };
 
   const getRiskColor = (risk: string) => {

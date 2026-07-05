@@ -3,10 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { Mail } from "lucide-react";
+import { useState } from "react";
+import { Modal } from "@/modules/shared/presentation/Modal";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 
 export function LoginView() {
   const router = useRouter();
-  const { loginWithGoogle, login, loading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { isModalOpen, setIsModalOpen, error, setError, setSuccess, loading } = useGlobalContext();
+  const { loginWithGoogle, login  } = useAuth();
 
   const handleGoogleLogin = async () => {
     await loginWithGoogle("test@example.com");
@@ -14,14 +20,30 @@ export function LoginView() {
   };
 
   const handleLogin = async () => {
-    await login("test@example.com", "12345678");
-    router.push("/");
-  }
+      const isSuccess = await login(email, password);
+
+      if (!isSuccess) return;
+
+      setEmail("");
+      setPassword("");
+
+      router.push("/");
+    };
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-blue-700 text-white rounded-[25px] shadow-2xl overflow-hidden p-8 sm:p-12 relative flex flex-col items-center justify-center min-h-[70vh]">
+         <Modal 
+            isOpen={isModalOpen && error !== null}
+            onClose={() => {
+                setIsModalOpen(false)
+                setSuccess(null);
+                setError(null);
 
+            }} 
+            title={"Ocurrió un error al iniciar sesión"}
+            description={error !== null ? error : ""}
+          />
         <div className="z-10 text-center flex flex-col items-center max-w-md w-full mx-auto">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">
             Iniciar sesión
@@ -50,6 +72,8 @@ export function LoginView() {
               <input
                 placeholder="correo@ejemplo.com"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-white text-slate-800 rounded-xl flex items-center justify-center py-4 px-6 text-lg font-medium shadow-lg hover:bg-slate-50 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-md mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50"
               />
             </div>
@@ -58,6 +82,8 @@ export function LoginView() {
               <input
                 placeholder="Contraseña"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white text-slate-800 rounded-xl flex items-center justify-center py-4 px-6 text-lg font-medium shadow-lg hover:bg-slate-50 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-md mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50"
               />
             </div>

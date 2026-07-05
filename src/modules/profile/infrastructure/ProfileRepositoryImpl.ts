@@ -1,25 +1,17 @@
+import { api } from "@/modules/shared/infrastructure/api";
 import { IProfileRepository } from "../domain/IProfileRepository";
 import { UserProfile } from "../domain/UserProfile";
 
 export class ProfileRepositoryImpl implements IProfileRepository {
-  async getProfile(userId: string): Promise<UserProfile> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          id: userId,
-          username: "LordMathi2741",
-          fullName: "Mathias Alejandro Jave Diaz",
-          createdAt: "21/04/2026",
-        });
-      }, 500);
-    });
+  async getProfile(email: string): Promise<UserProfile> {
+    var profile = await api.get(`/Profile/${email}`);
+    var data = profile.data.item as UserProfile;
+    return data;
   }
 
-  async updateProfile(profile: UserProfile): Promise<UserProfile> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(profile);
-      }, 800);
-    });
+  async updateProfile(id: number, profile: UserProfile): Promise<UserProfile> {
+    var updatedProfile = await api.put(`/Profile/${id}`, profile);
+    var data = updatedProfile.data.item as UserProfile;
+    return data;
   }
 }

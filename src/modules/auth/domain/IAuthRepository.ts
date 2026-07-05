@@ -1,10 +1,8 @@
-import { Login } from "./Login";
-import { User } from "./User";
 
 export interface IAuthRepository {
-  loginWithGoogle(email: string): Promise<User>;
-  login(email: string, password: string): Promise<User>;
-  register(email: string): Promise<User>;
-  logout(): Promise<void>;
-  getCurrentUser(): Promise<User | null>;
+  loginWithGoogle(email: string): Promise<any>;
+  login(email: string, password: string): Promise<any>;
+  register(email: string, password: string, fullName: string): Promise<any>;
+  changePasswordRequest(email: string): Promise<any>;
+  updatePassword(token: string,password: string): Promise<any>;
 }

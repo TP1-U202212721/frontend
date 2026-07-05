@@ -3,20 +3,43 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
 import { useState } from "react";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { Modal } from "@/modules/shared/presentation/Modal";
 
 export function RegisterView() {
   const router = useRouter();
   const { register, loading } = useAuth();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const { isModalOpen, setIsModalOpen, error, setError, setSuccess,success } = useGlobalContext();
 
   const handleRegister = async () => {
-    await register(email || "test@test.com");
-    router.push("/");
+    const isSuccess = await register(email, password, fullName);
+
+    if (!isSuccess) return;
+
+    setEmail("");
+    setPassword("");
+    setFullName("");
   };
 
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+            <Modal 
+                  isOpen={isModalOpen}
+                  onClose={() => {
+                    setIsModalOpen(false)
+                    setSuccess(null);
+                    setError(null);
+                    if (success) {
+                      router.push("/login");
+                    }
+                }} 
+                title={error ? "Ocurrió un error al registrarse" : success ? "Registro exitoso" : ""}
+                description={error ? error : success ? success : ""}
+              />
       <div className="max-w-2xl w-full bg-blue-700 text-white rounded-[25px] shadow-2xl overflow-hidden p-8 sm:p-12 relative flex flex-col items-center justify-center min-h-[70vh]">
 
         <div className="z-10 text-center flex flex-col items-center max-w-md w-full mx-auto mt-12 sm:mt-0">
@@ -34,6 +57,8 @@ export function RegisterView() {
               <input
                 type="text"
                 placeholder="Ingrese sus nombres"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="w-full px-6 py-4 rounded-xl text-slate-800 font-medium focus:ring-4 focus:ring-blue-300 focus:outline-none bg-white"
               />
             </div>
@@ -52,6 +77,8 @@ export function RegisterView() {
               <input
                 type="password"
                 placeholder="Ingresa tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-6 py-4 rounded-xl text-slate-800 font-medium focus:ring-4 focus:ring-blue-300 focus:outline-none bg-white"
               />
             </div>

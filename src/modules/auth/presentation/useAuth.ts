@@ -1,60 +1,87 @@
 "use client";
-
-import { useState } from "react";
 import { AuthRepositoryImpl } from "../infrastructure/AuthRepositoryImpl";
 import { IAuthRepository } from "../domain/IAuthRepository";
-import { User } from "../domain/User";
-import { useGlobal } from "@/modules/shared/presentation/useGlobal";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 const authRepository: IAuthRepository = new AuthRepositoryImpl();
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const { loading, setLoading, error, setError } = useGlobal()
+  const { loading, setLoading, error, setError, setIsModalOpen, setSuccess } = useGlobalContext();
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
-    setError(null);
     try {
-      const loggedUser = await authRepository.login(email, password);
-      setUser(loggedUser);
-      return loggedUser;
+      await authRepository.login(email, password);
+      return true;
     } catch (err) {
-      setError("Error al iniciar sesión");
-      throw err;
+      setError(err instanceof Error ? err.message : "Error");
+      setIsModalOpen(true);
+      return false;
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const loginWithGoogle = async (email: string) => {
     setLoading(true);
-    setError(null);
     try {
       const loggedUser = await authRepository.loginWithGoogle(email);
-      setUser(loggedUser);
       return loggedUser;
-    } catch (err) {
-      setError("Error al iniciar sesión");
-      throw err;
+    } catch (err:any) {
+      setError(err.message);
+      setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-
-  const register = async (email: string) => {
+  const changePasswordRequest = async (email: string) => {
     setLoading(true);
     try {
-      const newUser = await authRepository.register(email);
-      setUser(newUser);
-      return newUser;
-    } catch (err) {
-      setError("Error al registrar");
-      throw err;
+      await authRepository.changePasswordRequest(email);
+      setSuccess("Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña");
+      setIsModalOpen(true);
+      return true;
+    } catch (err:any) {
+      setError(err.message);
+      setIsModalOpen(true);
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  return { user, loading, error, loginWithGoogle, register, login };
+  const updatePassword = async (token: string, password: string) => {
+    setLoading(true);
+    try {
+      await authRepository.updatePassword(token, password);
+      setSuccess("Contraseña actualizada correctamente");
+      setIsModalOpen(true);
+      return true;
+    } catch (err:any) {
+      setError(err.message);
+      setIsModalOpen(true);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const register = async (email: string, password: string, fullName: string) => {
+    setLoading(true);
+    try {
+      await authRepository.register(email, password, fullName);
+      setSuccess("Usuario registrado correctamente");
+      setIsModalOpen(true);
+      return true;
+    } catch (err:any) {
+      setError(err.message);
+      setIsModalOpen(true);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loading, error, loginWithGoogle, register, login, changePasswordRequest, updatePassword };
 }

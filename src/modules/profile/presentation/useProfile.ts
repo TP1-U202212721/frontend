@@ -8,18 +8,18 @@ import { useGlobal } from "@/modules/shared/presentation/useGlobal";
 
 const profileRepository: IProfileRepository = new ProfileRepositoryImpl();
 
-export function useProfile(userId: string) {
+export function useProfile(email: string) {
   const { loading, setLoading } = useGlobal()
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     loadProfile();
-  }, [userId]);
+  }, [email]);
 
   const loadProfile = async () => {
     setLoading(true);
     try {
-      const data = await profileRepository.getProfile(userId);
+      const data = await profileRepository.getProfile(email);
       setProfile(data);
     } catch (err) {
       console.error(err);
@@ -28,12 +28,12 @@ export function useProfile(userId: string) {
     }
   };
 
-  const updateProfile = async (updatedData: Partial<UserProfile>) => {
+  const updateProfile = async (id:number,updatedData: any) => {
     if (!profile) return;
     setLoading(true);
     try {
       const newProfile = { ...profile, ...updatedData };
-      const saved = await profileRepository.updateProfile(newProfile);
+      const saved = await profileRepository.updateProfile(id, newProfile);
       setProfile(saved);
       return saved;
     } catch (err) {

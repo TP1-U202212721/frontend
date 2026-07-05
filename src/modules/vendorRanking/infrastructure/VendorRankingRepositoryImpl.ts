@@ -5,7 +5,6 @@ import { Publication } from "../domain/Publication";
 import { Review } from "../domain/Review";
 import { riskLevels } from "@/data/constants";
 import { api } from "@/modules/shared/infrastructure/api";
-
 type PaginatedResponse<T> = {
   items?: T[];
   total?: number;

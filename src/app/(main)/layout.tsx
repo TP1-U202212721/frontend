@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, Home, Clock, User, ShieldCheck, AlertTriangle, ShieldQuestion, FileText, ChartNoAxesColumn } from "lucide-react";
 
@@ -128,6 +129,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <button
             onClick={() => {
               closeSidebar();
+              Cookies.remove("token");
               router.push("/login");
             }}
             className="w-full py-3 text-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium"

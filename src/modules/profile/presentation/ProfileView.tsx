@@ -23,18 +23,16 @@ export function ProfileView() {
   }, []);
   const { profile, updateProfile, loading} = useProfile(email); 
   const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
 
   const handleEditClick = () => {
     if (profile) {
       setEditName(profile.fullName);
-      setEditEmail(profile.email);
     }
     setIsEditing(true);
   };
 
   const handleSave = async () => {
-    await updateProfile(profile!.id, { fullName: editName, email: editEmail });
+    await updateProfile(profile!.id, { fullName: editName });
     setIsEditing(false);
   };
 
@@ -88,13 +86,9 @@ export function ProfileView() {
               <div className="relative">
                 <input
                   type="text"
-                  disabled={!isEditing}
-                  onChange={(e) => setEditEmail(e.target.value)}
-                  value={isEditing ? editEmail : profile.email}
-                  className={`w-full p-6 text-xl sm:text-2xl rounded-2xl font-bold transition-all shadow-inner outline-none ${isEditing
-                    ? "bg-white text-slate-800 border-4 border-blue-400 focus:ring-4 focus:ring-blue-300 focus:border-blue-500"
-                    : "bg-white/90 text-slate-800 border-transparent disabled:opacity-100"
-                    }`}
+                  disabled={true}
+                  value={profile.email}
+                  className={`w-full p-6 text-xl sm:text-2xl rounded-2xl font-bold transition-all shadow-inner outline-none bg-white/90 text-slate-800 border-transparent`}
                 />
               </div>
             </div>

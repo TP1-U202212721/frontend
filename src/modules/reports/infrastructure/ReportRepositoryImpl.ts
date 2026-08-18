@@ -2,7 +2,6 @@
 import  { api, apiWithFormData } from "@/modules/shared/infrastructure/api";
 import { IReportRepository } from "../domain/IReportRepository";
 import { Report, HistoryItem } from "../domain/Report";
-import { AxiosError } from "axios";
 
 export class ReportRepositoryImpl implements IReportRepository {
 

@@ -1,6 +1,6 @@
 "use client";
-import { AuthRepositoryImpl } from "../infrastructure/AuthRepositoryImpl";
-import { IAuthRepository } from "../domain/IAuthRepository";
+import { AuthRepositoryImpl } from "../../infrastructure/AuthRepositoryImpl";
+import { IAuthRepository } from "../../domain/IAuthRepository";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 const authRepository: IAuthRepository = new AuthRepositoryImpl();
 
@@ -26,7 +26,7 @@ export function useAuth() {
     try {
       const loggedUser = await authRepository.loginWithGoogle(email);
       return loggedUser;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
       setIsModalOpen(true);
     } finally {
@@ -37,11 +37,11 @@ export function useAuth() {
   const changePasswordRequest = async (email: string) => {
     setLoading(true);
     try {
-      await authRepository.changePasswordRequest(email);
-      setSuccess("Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña");
+      const response = await authRepository.changePasswordRequest(email);
+      setSuccess(response);
       setIsModalOpen(true);
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
       setIsModalOpen(true);
       return false;
@@ -53,11 +53,11 @@ export function useAuth() {
   const updatePassword = async (token: string, password: string) => {
     setLoading(true);
     try {
-      await authRepository.updatePassword(token, password);
-      setSuccess("Contraseña actualizada correctamente");
+      const response = await authRepository.updatePassword(token, password);
+      setSuccess(response);
       setIsModalOpen(true);
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
       setIsModalOpen(true);
       return false;
@@ -74,7 +74,7 @@ export function useAuth() {
       setSuccess("Usuario registrado correctamente");
       setIsModalOpen(true);
       return true;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
       setIsModalOpen(true);
       return false;

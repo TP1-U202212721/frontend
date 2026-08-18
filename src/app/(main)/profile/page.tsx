@@ -1,4 +1,4 @@
-import { ProfileView } from "@/modules/profile/presentation/ProfileView";
+import { ProfileView } from "@/modules/profile/presentation/views/ProfileView";
 
 export default function ProfilePage() {
   return <ProfileView />;

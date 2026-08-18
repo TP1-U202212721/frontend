@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Vendor } from "@/modules/vendorRanking/domain/Vendor";
 import { Publication } from "@/modules/vendorRanking/domain/Publication";
 import { Review } from "@/modules/vendorRanking/domain/Review";
-import { useVendorRanking } from "@/modules/vendorRanking/presentation/useVendorRanking";
+import { useVendorRanking } from "@/modules/vendorRanking/presentation/hooks/useVendorRanking";
 
 const ITEMS_PER_PAGE = 4;
 

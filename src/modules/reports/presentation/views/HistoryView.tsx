@@ -2,14 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Trash2, Info, ChevronLeft, ChevronRight } from "lucide-react";
-import { useReports } from "./useReports";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { Modal } from "@/modules/shared/presentation/Modal";
-import { useRiskAnalysis } from "@/modules/riskAnalysis/presentation/useRiskAnalysis";
-import { Reason } from "../domain/Report";
+import { Reason } from "../../domain/Report";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { useProfile } from "@/modules/profile/presentation/useProfile";
+import { useRiskAnalysis } from "@/modules/riskAnalysis/presentation/hooks/useRiskAnalysis";
+import { useReports } from "../hooks/useReports";
+import { useProfile } from "@/modules/profile/presentation/hooks/useProfile";
 
 export function HistoryView() {
   const {
@@ -27,22 +27,22 @@ export function HistoryView() {
   } = useReports();
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const {reasons, getReasonsByInquiryResultId} = useReports();
-  const {clearResult} = useRiskAnalysis();
-  const {loading,error,success, isModalOpen, setSuccess, setError, setIsModalOpen} = useGlobalContext();
+  const { reasons, getReasonsByInquiryResultId } = useReports();
+  const { clearResult } = useRiskAnalysis();
+  const { loading, error, success, isModalOpen, setSuccess, setError, setIsModalOpen } = useGlobalContext();
 
   const email = useMemo(() => {
     const token = Cookies.get("token");
-      if (!token) return null;
+    if (!token) return null;
 
-      try {
-        const payload: any = jwtDecode(token);
-        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
-      } catch {
-        return null;
-      }
+    try {
+      const payload: any = jwtDecode(token);
+      return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+    } catch {
+      return null;
+    }
   }, []);
-  const {profile} = useProfile(email!);
+  const { profile } = useProfile(email!);
 
   useEffect(() => {
     loadHistory({ profileId: profile?.id ?? 0 });
@@ -136,51 +136,51 @@ export function HistoryView() {
             </button>
           </div>
         </div>
-         {showDetails && reasons && error === null && (
-        <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-[24px] shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all animate-scale-in flex flex-col items-center">
+        {showDetails && reasons && error === null && (
+          <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-[24px] shadow-2xl max-w-2xl w-full overflow-hidden transform transition-all animate-scale-in flex flex-col items-center">
 
-            <div className="w-full relative py-6 px-8 border-b border-slate-100 flex justify-end">
-              <button
-                onClick={() => {
-                  setShowDetails(false);
-                  clearResult();
-                }}
-                className="w-12 h-12 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 rounded-full flex items-center justify-center transition-colors"
-                aria-label="Cerrar"
-              >
-                <span className="text-2xl font-bold leading-none">&times;</span>
-              </button>
-            </div>
-
-            <div className="px-8 sm:px-12 pb-12 w-full">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-10">
-                Detalles de la evaluación
-              </h2>
-
-              <div className="bg-slate-50 rounded-2xl p-8 mb-12 border border-slate-200">
-                <ul className="space-y-6 text-xl font-bold text-slate-800 list-none pl-2">
-                  {reasons.items.map((reason:Reason, idx:any) => (
-                    <li key={idx} className="flex items-start gap-4">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 mt-2 shrink-0" />
-                      <span>{reason.title}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="w-full relative py-6 px-8 border-b border-slate-100 flex justify-end">
+                <button
+                  onClick={() => {
+                    setShowDetails(false);
+                    clearResult();
+                  }}
+                  className="w-12 h-12 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 rounded-full flex items-center justify-center transition-colors"
+                  aria-label="Cerrar"
+                >
+                  <span className="text-2xl font-bold leading-none">&times;</span>
+                </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-md mx-auto">
-                <button
-                  onClick={() => setShowDetails(false)}
-                  className="w-full sm:w-1/2 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  Regresar
-                </button>
+              <div className="px-8 sm:px-12 pb-12 w-full">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-10">
+                  Detalles de la evaluación
+                </h2>
+
+                <div className="bg-slate-50 rounded-2xl p-8 mb-12 border border-slate-200">
+                  <ul className="space-y-6 text-xl font-bold text-slate-800 list-none pl-2">
+                    {reasons.items.map((reason: Reason, idx: any) => (
+                      <li key={idx} className="flex items-start gap-4">
+                        <div className="w-3 h-3 rounded-full bg-blue-500 mt-2 shrink-0" />
+                        <span>{reason.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full max-w-md mx-auto">
+                  <button
+                    onClick={() => setShowDetails(false)}
+                    className="w-full sm:w-1/2 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    Regresar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         {loading && <p className="text-center font-bold text-xl">Cargando historial...</p>}
         {!loading && (
@@ -195,12 +195,12 @@ export function HistoryView() {
                 </div>
 
                 <div className="flex items-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
-                  <button 
-                  onClick={() => {
-                    setShowDetails(true);
-                    getReasonsByInquiryResultId(query.id);
-                  }}
-                  className="flex-1 sm:flex-none py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
+                  <button
+                    onClick={() => {
+                      setShowDetails(true);
+                      getReasonsByInquiryResultId(query.id);
+                    }}
+                    className="flex-1 sm:flex-none py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors"
                   >
                     <Info size={20} />
                     <span className="hidden sm:inline">Ver detalle</span>
@@ -244,16 +244,16 @@ export function HistoryView() {
         </p>
 
       </div>
-     <Modal 
-         isOpen={isModalOpen}
-         onClose={() => {
-              setIsModalOpen(false)
-              setSuccess(null);
-              setError(null);
-          }} 
-          title={error !== null ? "Ocurrió un error en la aplicación" : success!}
-          description={error !== null ? error : ""}
-        >
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSuccess(null);
+          setError(null);
+        }}
+        title={error !== null ? "Ocurrió un error en la aplicación" : success!}
+        description={error !== null ? error : ""}
+      >
       </Modal>
       {itemToDelete && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { VendorRankingRepositoryImpl } from "../infrastructure/VendorRankingRepositoryImpl";
-import { IVendorRankingRepository } from "../domain/IVendorRankingRepository";
-import { Vendor } from "../domain/Vendor";
-import { Publication } from "../domain/Publication";
-import { Review } from "../domain/Review";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { IVendorRankingRepository } from "../../domain/IVendorRankingRepository";
+import { VendorRankingRepositoryImpl } from "../../infrastructure/VendorRankingRepositoryImpl";
+import { Vendor } from "../../domain/Vendor";
+import { Publication } from "../../domain/Publication";
+import { Review } from "../../domain/Review";
 
 const rankingRepository: IVendorRankingRepository = new VendorRankingRepositoryImpl();
 

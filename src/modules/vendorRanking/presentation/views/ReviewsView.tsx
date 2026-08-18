@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { Star, Calendar } from "lucide-react";
-import { useVendorRanking } from "./useVendorRanking";
-import { Publication } from "../domain/Publication";
+import { useVendorRanking } from "../hooks/useVendorRanking";
+import { Publication } from "../../domain/Publication";
 
 interface ReviewsViewProps {
   publication: Publication | null;

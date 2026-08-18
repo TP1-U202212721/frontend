@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
-import { ReportRepositoryImpl } from "../infrastructure/ReportRepositoryImpl";
-import { IReportRepository } from "../domain/IReportRepository";
-import { HistoryItem, ReasonResponseWrapper, Report } from "../domain/Report";
+import { formatDate } from "@/utils/helpers";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
-import { formatDate } from "@/helpers/common";
+import { ReportRepositoryImpl } from "@/modules/reports/infrastructure/ReportRepositoryImpl";
+import { IReportRepository } from "@/modules/reports/domain/IReportRepository";
+import { ReasonResponseWrapper, HistoryItem, Report } from "@/modules/reports/domain/Report";
+
 const reportRepository: IReportRepository = new ReportRepositoryImpl();
 
 export function useReports() {
-  const { setLoading, setError, setIsModalOpen, setSuccess} = useGlobalContext();
+  const { setLoading, setError, setIsModalOpen, setSuccess } = useGlobalContext();
   const [offset, setOffset] = useState(0);
   const [limit, setLimit] = useState(10);
   const [date, setDate] = useState<string | undefined>(undefined);
@@ -49,7 +50,7 @@ export function useReports() {
         nextSellerName
       );
       setHistory(data);
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -62,7 +63,7 @@ export function useReports() {
       const data = await reportRepository.getReasonsByInquiryResultId(inquiryResultId);
       setReasons(data);
       return data;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err.message);
       setReasons({ items: [] });
       return [];
@@ -71,14 +72,14 @@ export function useReports() {
     }
   }
 
-  const submitReport = async (report:Report) => {
+  const submitReport = async (report: Report) => {
     setLoading(true);
     try {
       const result = await reportRepository.submitReport(report);
       setSuccess("Reporte enviado exitosamente");
       setIsModalOpen(true);
       return result;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err?.message ?? "Ocurrió un error al enviar el reporte");
       setIsModalOpen(true);
     } finally {
@@ -93,7 +94,7 @@ export function useReports() {
       setSuccess("Consulta guardada exitosamente");
       setIsModalOpen(true);
       return result;
-    } catch (err:any) {
+    } catch (err: any) {
       setError(err?.message ?? "Ocurrió un error al guardar la consulta");
       setIsModalOpen(true);
       throw err;
@@ -107,15 +108,15 @@ export function useReports() {
     try {
       await reportRepository.deleteHistoryItem(id);
       setSuccess("Consulta eliminada exitosamente");
-      setIsModalOpen(true); 
+      setIsModalOpen(true);
       setHistory((prev) => prev.filter((item) => item.id !== id));
-    } catch (err:any) {
+    } catch (err: any) {
       setError("Ocurrió un error al eliminar la consulta");
-      setIsModalOpen(true); 
+      setIsModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  return { history, getReasonsByInquiryResultId, reasons, loadHistory, submitReport, deleteHistoryItem, createInquiryResult, setOffset, setLimit, setDate, setRiskTypeId, setSellerName, offset, limit, date, riskTypeId, sellerName};
+  return { history, getReasonsByInquiryResultId, reasons, loadHistory, submitReport, deleteHistoryItem, createInquiryResult, setOffset, setLimit, setDate, setRiskTypeId, setSellerName, offset, limit, date, riskTypeId, sellerName };
 }

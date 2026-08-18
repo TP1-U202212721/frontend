@@ -2,16 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { User, Mail, UserRound } from "lucide-react";
-import { useProfile } from "./useProfile";
 import { Loader } from "@/modules/shared/presentation/Loader";
 import Cookies from "js-cookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+import { useProfile } from "../hooks/useProfile";
 
 
 export function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const email = useMemo(() => {
-  const token = Cookies.get("token");
+    const token = Cookies.get("token");
     if (!token) return null;
 
     try {
@@ -21,7 +21,7 @@ export function ProfileView() {
       return null;
     }
   }, []);
-  const { profile, updateProfile, loading} = useProfile(email); 
+  const { profile, updateProfile, loading } = useProfile(email);
   const [editName, setEditName] = useState("");
 
   const handleEditClick = () => {

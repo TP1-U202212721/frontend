@@ -2,21 +2,21 @@
 
 import { useMemo, useState } from "react";
 import { Search, ShieldAlert, ShieldCheck, Info } from "lucide-react";
-import { useRiskAnalysis } from "./useRiskAnalysis";
-import { useReports } from "@/modules/reports/presentation/useReports";
-import { riskLevels } from "@/data/constants";
-import { Modal } from "@/modules/shared/presentation/Modal";
-import {  useGlobalContext } from "@/modules/shared/presentation/useGlobal";
-import { extractPostId } from "@/helpers/common";
-import { useProfile } from "@/modules/profile/presentation/useProfile";
+import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
+import { extractPostId } from "@/utils/helpers";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import { useRiskAnalysis } from "../hooks/useRiskAnalysis";
+import { useReports } from "@/modules/reports/presentation/hooks/useReports";
+import { useProfile } from "@/modules/profile/presentation/hooks/useProfile";
+import { riskLevels } from "@/data/constants";
+import { Modal } from "@/modules/shared/presentation/Modal";
 
 export function HomeView() {
   const [searchQuery, setSearchQuery] = useState("");
   const { loading, error, success, isModalOpen, setIsModalOpen, setError, setSuccess } = useGlobalContext();
-  const { result, evaluateRisk, clearResult} = useRiskAnalysis();
-  const {createInquiryResult} = useReports();
+  const { result, evaluateRisk, clearResult } = useRiskAnalysis();
+  const { createInquiryResult } = useReports();
   const [showDetails, setShowDetails] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -34,18 +34,19 @@ export function HomeView() {
     }
   };
 
-   const email = useMemo(() => {
+  const email = useMemo(() => {
     const token = Cookies.get("token");
-      if (!token) return null;
+    if (!token) return null;
 
-      try {
-        const payload: any = jwtDecode(token);
-        return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
-      } catch {
-        return null;
-      }
+    try {
+      const payload: any = jwtDecode(token);
+      return payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
+    } catch {
+      return null;
+    }
   }, []);
-  const {profile} = useProfile(email!);
+
+  const { profile } = useProfile(email!);
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-6 relative w-full h-full min-h-[calc(100vh-100px)]">
@@ -85,17 +86,17 @@ export function HomeView() {
           </button>
         </div>
       </form>
-      
-      <Modal 
+
+      <Modal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false)
           setSuccess(null);
           setError(null);
-        }} 
+        }}
         title={error !== null ? "Ocurrió un error en la aplicación" : success!}
         description={error !== null ? error : ""}
-        >
+      >
       </Modal>
 
       {result && !showDetails && error === null && (
@@ -187,7 +188,7 @@ export function HomeView() {
 
               <div className="bg-slate-50 rounded-2xl p-8 mb-12 border border-slate-200">
                 <ul className="space-y-6 text-xl font-bold text-slate-800 list-none pl-2">
-                  {result.reasons.map((reason, idx) => (
+                  {result.reasons.map((reason: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-4">
                       <div className="w-3 h-3 rounded-full bg-blue-500 mt-2 shrink-0" />
                       <span>{reason}</span>

@@ -1,4 +1,4 @@
-import { RegisterView } from "@/modules/auth/presentation/RegisterView";
+import { RegisterView } from "@/modules/auth/presentation/views/RegisterView";
 
 export default function RegisterPage() {
   return <RegisterView />;

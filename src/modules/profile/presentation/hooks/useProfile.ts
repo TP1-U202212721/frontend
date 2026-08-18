@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProfileRepositoryImpl } from "../infrastructure/ProfileRepositoryImpl";
-import { IProfileRepository } from "../domain/IProfileRepository";
-import { UserProfile } from "../domain/UserProfile";
 import { useGlobal } from "@/modules/shared/presentation/useGlobal";
+import { IProfileRepository } from "../../domain/IProfileRepository";
+import { ProfileRepositoryImpl } from "../../infrastructure/ProfileRepositoryImpl";
+import { UserProfile } from "../../domain/UserProfile";
 
 const profileRepository: IProfileRepository = new ProfileRepositoryImpl();
 
@@ -28,7 +28,7 @@ export function useProfile(email: string) {
     }
   };
 
-  const updateProfile = async (id:number,updatedData: any) => {
+  const updateProfile = async (id: number, updatedData: any) => {
     if (!profile) return;
     setLoading(true);
     try {

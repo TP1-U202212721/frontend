@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ChevronRight, TrendingDown } from "lucide-react";
-import { useVendorRanking } from "./useVendorRanking";
-import { Vendor } from "../domain/Vendor";
+import { Vendor } from "../../domain/Vendor";
+import { useVendorRanking } from "../hooks/useVendorRanking";
 
 interface RankingViewProps {
   onSelectVendor: (vendor: Vendor) => void;

@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 // estar marcada como build variable. El fallback mantiene el flujo local
 // contra el backend corriendo con dotnet run.
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5018/api/v1';
+  process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api/v1';
 export const api = axios.create({
   baseURL: API_BASE_URL,
   validateStatus: () => true,

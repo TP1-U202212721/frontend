@@ -25,7 +25,13 @@ export function LoginView() {
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Correo inválido").required("El correo es requerido"),
-      password: Yup.string().required("La contraseña es requerida"),
+      password: Yup.string()
+        .min(8, "La contraseña debe tener al menos 8 caracteres")
+        .matches(/[a-z]/, "Debe contener al menos una letra minúscula")
+        .matches(/[A-Z]/, "Debe contener al menos una letra mayúscula")
+        .matches(/[0-9]/, "Debe contener al menos un número")
+        .matches(/[@$!%*?&]/, "Debe contener al menos un carácter especial (@$!%*?&)")
+        .required("La contraseña es requerida"),
     }),
     onSubmit: async (values) => {
       const isSuccess = await login(values.email, values.password);

@@ -21,14 +21,15 @@ export function useAuth() {
     }
   };
 
-  const loginWithGoogle = async (email: string) => {
+  const loginWithGoogle = async (idToken: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const loggedUser = await authRepository.loginWithGoogle(email);
-      return loggedUser;
-    } catch (err: any) {
-      setError(err.message);
+      await authRepository.loginWithGoogle(idToken);
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error");
       setIsModalOpen(true);
+      return false;
     } finally {
       setLoading(false);
     }

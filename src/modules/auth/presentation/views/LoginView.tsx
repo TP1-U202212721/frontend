@@ -1,20 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Mail } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Modal } from "@/modules/shared/presentation/Modal";
 import { useGlobalContext } from "@/modules/shared/presentation/useGlobal";
 import { useAuth } from "../hooks/useAuth";
+import { GoogleSignInButton } from "../components/GoogleSignInButton";
 
 export function LoginView() {
   const router = useRouter();
   const { isModalOpen, setIsModalOpen, error, setError, setSuccess, loading } = useGlobalContext();
   const { loginWithGoogle, login } = useAuth();
 
-  const handleGoogleLogin = async () => {
-    await loginWithGoogle("test@example.com");
+  const handleGoogleCredential = async (idToken: string) => {
+    const isSuccess = await loginWithGoogle(idToken);
+
+    if (!isSuccess) return;
+
     router.push("/");
   };
 
@@ -65,14 +68,7 @@ export function LoginView() {
             Accede para gestionar tu historial y protegerte de estafas digitales
           </p>
 
-          <button
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full bg-white text-slate-600 rounded-xl flex items-center justify-center gap-3 py-4 px-6 text-xl font-bold shadow-lg hover:bg-slate-50 hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:shadow-md mb-6 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:opacity-50"
-          >
-            <Mail size={30} className="text-slate-600" />
-            <span>Iniciar sesión con Google</span>
-          </button>
+          <GoogleSignInButton onCredential={handleGoogleCredential} disabled={loading} />
 
           <div className="flex items-center w-full my-2">
             <div className="h-px bg-blue-400 flex-1"></div>

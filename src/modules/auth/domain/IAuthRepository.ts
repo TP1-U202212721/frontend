@@ -1,6 +1,6 @@
 
 export interface IAuthRepository {
-  loginWithGoogle(email: string): Promise<any>;
+  loginWithGoogle(idToken: string): Promise<void>;
   login(email: string, password: string): Promise<any>;
   register(email: string, password: string, fullName: string): Promise<any>;
   changePasswordRequest(email: string): Promise<any>;

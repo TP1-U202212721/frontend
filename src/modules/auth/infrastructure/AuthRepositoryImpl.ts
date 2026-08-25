@@ -26,12 +26,12 @@ export class AuthRepositoryImpl implements IAuthRepository {
         const token = response.data.item;
         Cookies.set("token", token);
   }
-  async loginWithGoogle(email: string): Promise<any> {
-    const response = await api.post('/Auth/sign-in-with-google', { email });
+  async loginWithGoogle(idToken: string): Promise<void> {
+    const response = await api.post('/Auth/google', { idToken });
     if (!response.data.isSuccess || response.data.item === null) {
         throw new Error(response.data.message || "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo más tarde.");
     }
-    return response.data.item;
+    Cookies.set("token", response.data.item);
   }
 
   async register(email: string, password: string, fullName: string): Promise<any> {

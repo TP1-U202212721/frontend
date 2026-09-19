@@ -14,13 +14,38 @@ import {
   Smartphone,
 } from "lucide-react";
 import { DetectedBrowser, ExtensionStore } from "../../domain/Browser";
-import { ExtensionStoreInfo, extensionStoreOrder, extensionStores } from "../../infrastructure/extensionStores";
+import {
+  ExtensionStoreInfo,
+  extensionStoreOrder,
+  extensionStores,
+  extensionVersion,
+  installModeOf,
+} from "../../infrastructure/extensionStores";
+import { ManualInstallNotices, ManualInstallSteps } from "../components/ManualInstall";
+import { Step, focusRing, stepText } from "../components/Step";
 import { useDetectedBrowser } from "../hooks/useDetectedBrowser";
 
-const focusRing =
-  "focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50";
-
 function PrimaryStoreButton({ store, browserName }: { store: ExtensionStoreInfo; browserName: string }) {
+  const mode = installModeOf(store);
+
+  if (mode === "manual" && store.zipUrl) {
+    return (
+      <a
+        href={store.zipUrl}
+        download
+        className={`w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-md transition-all active:scale-95 ${focusRing}`}
+      >
+        <Download size={28} strokeWidth={2.5} aria-hidden="true" />
+        <span className="text-left">
+          <span className="block text-xl font-extrabold">Descargar la extensión para {browserName} (.zip)</span>
+          <span className="block text-base font-medium text-blue-100">
+            {extensionVersion ? `Versión ${extensionVersion} · ` : ""}Instalación manual, pasos abajo
+          </span>
+        </span>
+      </a>
+    );
+  }
+
   if (!store.url) {
     return (
       <div className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-5 rounded-2xl border-2 border-dashed border-blue-300 bg-white text-blue-800">
@@ -56,6 +81,22 @@ function PrimaryStoreButton({ store, browserName }: { store: ExtensionStoreInfo;
 
 function SecondaryStoreLink({ store, label }: { store: ExtensionStoreInfo; label?: string }) {
   const text = label ?? `Descargar para ${store.browserName}`;
+
+  // En móvil (con label) no se ofrece el .zip: solo sirve en el navegador de escritorio.
+  if (!label && installModeOf(store) === "manual" && store.zipUrl) {
+    return (
+      <li>
+        <a
+          href={store.zipUrl}
+          download
+          className={`flex items-center justify-between gap-3 px-5 py-4 rounded-xl border-2 border-slate-200 bg-white text-slate-800 hover:border-blue-500 hover:text-blue-700 transition-colors font-bold ${focusRing}`}
+        >
+          <span>Descargar .zip para Chrome, Edge o Brave</span>
+          <Download size={18} aria-hidden="true" />
+        </a>
+      </li>
+    );
+  }
 
   if (!store.url) {
     return (
@@ -209,27 +250,17 @@ function pinHint(store: ExtensionStore | null | undefined): string {
   }
 }
 
-function StepHeader({ number, title, Icon }: { number: number; title: string; Icon: typeof Pin }) {
-  return (
-    <div className="flex items-center gap-4 mb-3">
-      <span
-        className="w-11 h-11 shrink-0 rounded-full bg-blue-700 text-white flex items-center justify-center text-xl font-extrabold"
-        aria-hidden="true"
-      >
-        {number}
-      </span>
-      <h3 className="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-        <span className="sr-only">Paso {number}: </span>
-        {title}
-        <Icon size={22} className="text-blue-600 shrink-0" aria-hidden="true" />
-      </h3>
-    </div>
-  );
-}
-
 export function ExtensionHomeView() {
   const browser = useDetectedBrowser();
   const isMobile = browser !== null && browser.platform !== "desktop";
+
+  // Mientras Chrome/Edge/Brave se instale con el .zip, el onboarding muestra los pasos
+  // manuales, salvo que el visitante use otro navegador que ya esté en su tienda.
+  const ownStore = browser?.platform === "desktop" && browser.store ? extensionStores[browser.store] : null;
+  const manualSteps =
+    installModeOf(extensionStores.chrome) === "manual" &&
+    !(ownStore && ownStore.id !== "chrome" && ownStore.url);
+  const firstUsageStep = manualSteps ? 6 : 3;
 
   return (
     <div className="flex flex-col items-center flex-1 px-4 sm:px-6 py-10 sm:py-16 relative w-full">
@@ -258,38 +289,45 @@ export function ExtensionHomeView() {
       </section>
 
       <section aria-labelledby="steps-title" className="max-w-4xl w-full mb-12 animate-slide-up motion-reduce:animate-none">
-        <h2 id="steps-title" className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-8 sm:mb-10">
-          Cómo empezar en 4 pasos
+        <h2 id="steps-title" className="text-3xl sm:text-4xl font-extrabold text-blue-700 text-center mb-4">
+          Cómo empezar en {firstUsageStep + 1} pasos
         </h2>
+        {manualSteps ? (
+          <>
+            <p className="text-lg sm:text-xl text-slate-600 font-medium text-center mb-8 sm:mb-10">
+              Mientras la extensión llega a las tiendas, se instala a mano en Chrome, Edge o Brave con el archivo
+              .zip. Toma un par de minutos.
+            </p>
+            <ManualInstallNotices />
+          </>
+        ) : (
+          <div className="mb-4 sm:mb-6" />
+        )}
 
         <ol className="flex flex-col gap-5 list-none">
-          <li className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
-            <StepHeader number={1} title="Instala la extensión" Icon={Download} />
-            <p className="text-base sm:text-lg text-slate-600 font-medium sm:pl-15">
-              Descárgala desde la tienda de tu navegador y acepta la instalación.
-            </p>
-          </li>
+          {manualSteps ? (
+            <ManualInstallSteps browserName={browser?.name} />
+          ) : (
+            <>
+              <Step number={1} title="Instala la extensión" Icon={Download}>
+                <p className={stepText}>Descárgala desde la tienda de tu navegador y acepta la instalación.</p>
+              </Step>
 
-          <li className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
-            <StepHeader number={2} title="Fíjala en la barra" Icon={Pin} />
-            <p className="text-base sm:text-lg text-slate-600 font-medium sm:pl-15">
-              {pinHint(browser?.store)}
-            </p>
-          </li>
+              <Step number={2} title="Fíjala en la barra" Icon={Pin}>
+                <p className={stepText}>{pinHint(browser?.store)}</p>
+              </Step>
+            </>
+          )}
 
-          <li className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
-            <StepHeader number={3} title="Abre una ficha de producto" Icon={ShoppingBag} />
-            <p className="text-base sm:text-lg text-slate-600 font-medium sm:pl-15">
+          <Step number={firstUsageStep} title="Abre una ficha de producto" Icon={ShoppingBag}>
+            <p className={stepText}>
               Entra a la publicación que quieres comprar en MercadoLibre (u otro marketplace compatible).
               ScamShield revisa esa ficha y al vendedor.
             </p>
-          </li>
+          </Step>
 
-          <li className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-8">
-            <StepHeader number={4} title="Lee el veredicto antes de pagar" Icon={ShieldCheck} />
-            <p className="text-base sm:text-lg text-slate-600 font-medium mb-5 sm:pl-15">
-              La extensión te muestra uno de estos cuatro resultados:
-            </p>
+          <Step number={firstUsageStep + 1} title="Lee el veredicto antes de pagar" Icon={ShieldCheck}>
+            <p className={`${stepText} mb-5`}>La extensión te muestra uno de estos cuatro resultados:</p>
 
             <ul className="grid gap-3 sm:grid-cols-2 mb-5 sm:pl-15">
               {verdicts.map(({ label, description, className, Icon }) => (
@@ -311,7 +349,7 @@ export function ExtensionHomeView() {
                 verificar más, no como luz verde para pagar.
               </p>
             </div>
-          </li>
+          </Step>
         </ol>
       </section>
 

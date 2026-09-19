@@ -1,5 +1,5 @@
-import { HomeView } from "@/modules/riskAnalysis/presentation/views/HomeView";
+import { ExtensionHomeView } from "@/modules/extension/presentation/views/ExtensionHomeView";
 
 export default function HomePage() {
-  return <HomeView />;
+  return <ExtensionHomeView />;
 }

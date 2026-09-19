@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { useVendorRanking } from "./useVendorRanking";
-import { Vendor } from "../domain/Vendor";
-import { Publication } from "../domain/Publication";
+import { useVendorRanking } from "../hooks/useVendorRanking";
+import { Vendor } from "../../domain/Vendor";
+import { Publication } from "../../domain/Publication";
 
 interface VendorDetailViewProps {
   vendor: Vendor | null;

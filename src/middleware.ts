@@ -23,9 +23,11 @@ export function middleware(request: NextRequest) {
     '/terms'
   ];
 
-  const isPathUnprotected = unProtectedRoutes.some((path) =>
-    pathname.startsWith(path)
-  );
+  // La home (descarga de la extensión) es pública. Va aparte y con igualdad
+  // exacta: '/' dentro de la lista de startsWith dejaría pública toda la app.
+  const isPathUnprotected =
+    pathname === '/' ||
+    unProtectedRoutes.some((path) => pathname.startsWith(path));
 
   if (!isPathUnprotected && !token) {
     return NextResponse.redirect(new URL('/login', request.url));
